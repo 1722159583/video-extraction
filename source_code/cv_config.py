@@ -1,5 +1,7 @@
 ﻿# cv_config.py - CV算法参数配置
-MODEL_PATH = "yolo11n.pt"
+from pathlib import Path
+
+MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "yolo11n.pt"
 CONFIDENCE_THRESHOLD = 0.35
 SAMPLE_INTERVAL = 15
 TOP_N_SEGMENTS = 5
