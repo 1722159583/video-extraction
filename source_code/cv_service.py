@@ -6,7 +6,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from ultralytics import YOLO
+
 
 from cv_config import (
     MODEL_PATH, CONFIDENCE_THRESHOLD, SAMPLE_INTERVAL,
@@ -18,6 +18,7 @@ from cv_config import (
 
 def load_model(model_path=None):
     """加载YOLO模型"""
+    from ultralytics import YOLO
     if model_path is None:
         model_path = MODEL_PATH
     if not os.path.exists(model_path):
@@ -244,3 +245,4 @@ def extract_highlights(video_path, output_dir=None):
         },
         "processing_time": elapsed,
     }
+
