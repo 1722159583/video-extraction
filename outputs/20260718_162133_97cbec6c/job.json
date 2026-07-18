@@ -1,0 +1,12 @@
+{
+  "job_id": "20260718_162133_97cbec6c",
+  "project_name": "删除运行中测试",
+  "asset_name": "test_video_short.mp4",
+  "status": "completed",
+  "created_at": "2026-07-18T16:21:33+08:00",
+  "started_at": "2026-07-18T16:21:33+08:00",
+  "completed_at": "2026-07-18T16:21:35+08:00",
+  "settings": {},
+  "result_file": "analysis_report.json",
+  "error": null
+}

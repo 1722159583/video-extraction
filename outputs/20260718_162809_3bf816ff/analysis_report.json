@@ -1,0 +1,21 @@
+{
+  "job_id": "20260718_162809_3bf816ff",
+  "asset_name": "test_video_short.mp4",
+  "status": "completed",
+  "video": {
+    "duration": 3.0,
+    "fps": 30.0,
+    "total_frames": 90,
+    "sampled_frames": 6
+  },
+  "highlights": [],
+  "keyframes": [],
+  "model": "yolo11n",
+  "parameters": {
+    "confidence_threshold": 0.35,
+    "sample_interval": 15,
+    "top_n_segments": 5
+  },
+  "processing_time": 0.53,
+  "message": "分析完成，可查看并审核推荐精彩片段。"
+}
