@@ -3,6 +3,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from app import create_app
 
@@ -10,7 +11,11 @@ from app import create_app
 class ApiTestCase(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
-        self.app = create_app({"TESTING": True, "OUTPUT_DIR": Path(self.temp_dir.name) / "outputs"})
+        self.app = create_app({
+            "TESTING": True,
+            "OUTPUT_DIR": Path(self.temp_dir.name) / "outputs",
+            "ANALYZE_ASYNC": False,
+        })
         self.client = self.app.test_client()
 
     def tearDown(self):
@@ -66,6 +71,34 @@ class ApiTestCase(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn("keep", response.json["error"])
+
+    @patch("app.extract_highlights")
+    def test_analysis_report_and_review_lifecycle(self, extract_highlights):
+        extract_highlights.return_value = {
+            "status": "completed",
+            "video_info": {"duration": 8.0, "fps": 24.0, "total_frames": 192, "sampled_frames": 4},
+            "highlights": [{"segment_id": 1, "start_time": 1.0, "end_time": 4.0, "score": 0.82, "reason": "检测到 person×2"}],
+            "model": "yolo11n",
+            "parameters": {},
+            "processing_time": 0.3,
+        }
+        job = self.create_job().json["job"]
+
+        analyzed = self.client.post(f"/api/jobs/{job['job_id']}/analyze")
+        self.assertEqual(analyzed.status_code, 202)
+        self.assertEqual(self.client.get(f"/api/jobs/{job['job_id']}").json["job"]["status"], "completed")
+
+        report = self.client.get(f"/api/jobs/{job['job_id']}/report").json["report"]
+        self.assertEqual(report["video"]["duration"], 8.0)
+        self.assertEqual(report["keyframes"][0]["id"], "segment_1")
+
+        reviewed = self.client.patch(
+            f"/api/jobs/{job['job_id']}/review",
+            data=json.dumps({"keyframe_id": "segment_1", "action": "keep"}),
+            content_type="application/json",
+        )
+        self.assertEqual(reviewed.status_code, 200)
+        self.assertEqual(reviewed.json["keyframe"]["review"], "keep")
 
 
 if __name__ == "__main__":

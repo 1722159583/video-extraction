@@ -18,7 +18,7 @@ python app.py --host 127.0.0.1 --port 7880
 - 使用后台线程执行分析，不阻塞浏览器上传请求；
 - 在 `job.json` 中持久化创建、排队、运行、完成和失败状态；
 - 提供任务列表、详情、报告、关键帧人工审核和安全删除接口；
-- 通过 `source_code.cv_service.extract_highlights(video_path, output_dir)` 接口接入算法模块，并生成可查询的视频分析报告。
+- 通过 `processor.py` 的 `analyze_video(video_path, output_dir, settings)` 接口接入算法模块。未接入时会生成视频元信息报告。
 
 接口约定见 [docs/API.md](docs/API.md)。
 

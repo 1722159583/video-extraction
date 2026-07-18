@@ -179,6 +179,30 @@ button.secondary:hover {
     font-size: 13px;
 }
 
+.job-summary,
+.report-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.job-summary > div,
+.report-grid > div {
+    padding: 12px;
+    border: 1px solid #243241;
+    border-radius: 6px;
+    background: #0b0e14;
+    color: #c9d5df;
+    overflow-wrap: anywhere;
+}
+
+.job-summary strong,
+.report-grid strong {
+    color: #6a7a88;
+    font-size: 12px;
+}
+
 .loading-text {
     color: #6a7a88;
 }
@@ -277,5 +301,9 @@ button.secondary:hover {
     }
     .keyframes-grid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    .job-summary,
+    .report-grid {
+        grid-template-columns: 1fr;
     }
 }

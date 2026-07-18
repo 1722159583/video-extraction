@@ -52,7 +52,11 @@ def allowed_file(filename: str) -> bool:
 
 def create_app(config: dict[str, Any] | None = None) -> Flask:
     app = Flask(__name__)
-    app.config.from_mapping(OUTPUT_DIR=DEFAULT_OUTPUT_DIR, MAX_CONTENT_LENGTH=2 * 1024 * 1024 * 1024)
+    app.config.from_mapping(
+        OUTPUT_DIR=DEFAULT_OUTPUT_DIR,
+        MAX_CONTENT_LENGTH=2 * 1024 * 1024 * 1024,
+        ANALYZE_ASYNC=True,
+    )
     if config:
         app.config.update(config)
     Path(app.config["OUTPUT_DIR"]).mkdir(parents=True, exist_ok=True)
@@ -80,6 +84,42 @@ def create_app(config: dict[str, Any] | None = None) -> Flask:
     def save_job(directory: Path, job: dict[str, Any]) -> None:
         write_json(directory / "job.json", job)
 
+    def build_report(directory: Path, job: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:
+        """Adapt the CV module result to the report contract consumed by the web UI."""
+        video_info = result.get("video_info", {})
+        highlights = result.get("highlights", [])
+        keyframes = []
+        for highlight in highlights:
+            segment_id = highlight.get("segment_id")
+            evidence = directory / "evidence" / f"evidence_{segment_id}.jpg"
+            keyframes.append({
+                "id": f"segment_{segment_id}",
+                "segment_id": segment_id,
+                "timestamp": round((highlight.get("start_time", 0) + highlight.get("end_time", 0)) / 2, 2),
+                "score": highlight.get("score", 0),
+                "label": highlight.get("reason", ""),
+                "note": "",
+                "review": "pending",
+                "image_url": f"/outputs/{job['job_id']}/evidence/evidence_{segment_id}.jpg" if evidence.is_file() else None,
+            })
+        return {
+            "job_id": job["job_id"],
+            "asset_name": job["asset_name"],
+            "status": "completed",
+            "video": {
+                "duration": video_info.get("duration", 0),
+                "fps": video_info.get("fps", 0),
+                "total_frames": video_info.get("total_frames", 0),
+                "sampled_frames": video_info.get("sampled_frames", 0),
+            },
+            "highlights": highlights,
+            "keyframes": keyframes,
+            "model": result.get("model", "yolo11n"),
+            "parameters": result.get("parameters", {}),
+            "processing_time": result.get("processing_time", 0),
+            "message": "分析完成，可查看并审核推荐精彩片段。",
+        }
+
     def run_analysis(job_id: str) -> None:
         directory, job = get_job(job_id)
         if not directory or not job:
@@ -90,7 +130,9 @@ def create_app(config: dict[str, Any] | None = None) -> Flask:
             video_path = next((directory / "input").iterdir())
             job_dir = directory
             result = extract_highlights(video_path, output_dir=job_dir)
-            report = {"job_id": job["job_id"], "asset_name": job["asset_name"], **result}
+            if result.get("status") == "failed":
+                raise RuntimeError(result.get("error", "视频分析失败"))
+            report = build_report(directory, job, result)
             write_json(directory / "analysis_report.json", report)
             job.update(status="completed", completed_at=utc_now(), result_file="analysis_report.json")
         except Exception as error:  # Persist failures so they remain visible after restart.
@@ -179,8 +221,11 @@ def create_app(config: dict[str, Any] | None = None) -> Flask:
         job["status"] = "queued"
         job["error"] = None
         save_job(directory, job)
-        worker = threading.Thread(target=run_analysis, args=(job_id,), daemon=True, name=f"analysis-{job_id}")
-        worker.start()
+        if app.config["ANALYZE_ASYNC"]:
+            worker = threading.Thread(target=run_analysis, args=(job_id,), daemon=True, name=f"analysis-{job_id}")
+            worker.start()
+        else:
+            run_analysis(job_id)
         return api_response({"job": job}, 202)
 
     @app.patch("/api/jobs/<job_id>/review")
