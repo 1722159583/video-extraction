@@ -26,7 +26,7 @@ class ApiTestCase(unittest.TestCase):
     def test_health_and_job_creation(self):
         page = self.client.get("/")
         self.assertEqual(page.status_code, 200)
-        self.assertIn("精彩片段工作台", page.get_data(as_text=True))
+        self.assertIn("视频精彩片段提取系统", page.get_data(as_text=True))
 
         health = self.client.get("/api/health")
         self.assertEqual(health.status_code, 200)
