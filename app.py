@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from flask import Flask, jsonify, render_template, request, send_from_directory
+from source_code.cv_service import extract_highlights
 from werkzeug.utils import secure_filename
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -79,36 +80,6 @@ def create_app(config: dict[str, Any] | None = None) -> Flask:
     def save_job(directory: Path, job: dict[str, Any]) -> None:
         write_json(directory / "job.json", job)
 
-    def default_analysis(video_path: Path, job: dict[str, Any]) -> dict[str, Any]:
-        """Small usable fallback until the CV module supplies YOLO-based analysis."""
-        try:
-            import cv2
-        except ImportError as error:
-            raise RuntimeError("缺少 OpenCV，请安装 requirements.txt 中的依赖") from error
-
-        capture = cv2.VideoCapture(str(video_path))
-        if not capture.isOpened():
-            raise ValueError("无法读取视频文件，请确认文件未损坏且编码受支持")
-        try:
-            fps = float(capture.get(cv2.CAP_PROP_FPS) or 0)
-            frame_count = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
-            width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
-            height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
-            if fps <= 0 or frame_count <= 0:
-                raise ValueError("视频不包含可用帧")
-            duration = frame_count / fps
-        finally:
-            capture.release()
-
-        return {
-            "job_id": job["job_id"],
-            "asset_name": job["asset_name"],
-            "video": {"duration": round(duration, 3), "fps": round(fps, 3), "width": width, "height": height},
-            "keyframes": [],
-            "recommended_segments": [],
-            "message": "基础视频信息已生成；等待 CV 分析模块生成关键帧与推荐片段。",
-        }
-
     def run_analysis(job_id: str) -> None:
         directory, job = get_job(job_id)
         if not directory or not job:
@@ -117,12 +88,9 @@ def create_app(config: dict[str, Any] | None = None) -> Flask:
         save_job(directory, job)
         try:
             video_path = next((directory / "input").iterdir())
-            try:
-                from processor import analyze_video  # type: ignore[import-not-found]
-            except ImportError:
-                report = default_analysis(video_path, job)
-            else:
-                report = analyze_video(video_path, directory, job.get("settings", {}))
+            job_dir = directory
+            result = extract_highlights(video_path, output_dir=job_dir)
+            report = {"job_id": job["job_id"], "asset_name": job["asset_name"], **result}
             write_json(directory / "analysis_report.json", report)
             job.update(status="completed", completed_at=utc_now(), result_file="analysis_report.json")
         except Exception as error:  # Persist failures so they remain visible after restart.
