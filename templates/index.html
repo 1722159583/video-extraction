@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>精彩片段工作台</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">VIDEO HIGHLIGHT LAB</p>
+      <h1>精彩片段工作台</h1>
+    </div>
+    <div id="service-status" class="service-status" aria-live="polite">服务检查中</div>
+  </header>
+
+  <main class="workspace">
+    <section class="upload-panel" aria-labelledby="upload-heading">
+      <div class="section-heading">
+        <div>
+          <p class="step">01</p>
+          <h2 id="upload-heading">新建分析任务</h2>
+        </div>
+        <p>上传游戏录屏或场景演示视频</p>
+      </div>
+      <form id="upload-form">
+        <label class="dropzone" for="video-file">
+          <input id="video-file" name="file" type="file" accept="video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm" required>
+          <span class="upload-mark">+</span>
+          <strong id="file-name">选择视频文件</strong>
+          <small>支持 MP4、MOV、AVI、MKV、WebM</small>
+        </label>
+        <label class="field-label" for="project-name">项目名称</label>
+        <input id="project-name" name="project_name" type="text" value="视频精彩片段提取" maxlength="80">
+        <div class="form-actions">
+          <button id="create-button" type="submit">创建并开始分析</button>
+          <span id="upload-message" role="status"></span>
+        </div>
+      </form>
+      <video id="video-preview" class="video-preview" controls hidden></video>
+    </section>
+
+    <section class="result-panel" aria-labelledby="result-heading">
+      <div class="section-heading">
+        <div>
+          <p class="step">02</p>
+          <h2 id="result-heading">分析结果</h2>
+        </div>
+        <span id="current-job-id" class="job-id">尚未选择任务</span>
+      </div>
+      <div id="result-empty" class="empty-state">上传视频后，系统会在这里显示处理进度和分析结果。</div>
+      <div id="result-content" hidden>
+        <div class="status-row">
+          <span id="task-status" class="status">等待中</span>
+          <span id="task-time"></span>
+        </div>
+        <p id="task-error" class="error" hidden></p>
+        <div id="video-info" class="metrics"></div>
+        <p id="report-message" class="report-message"></p>
+        <details>
+          <summary>查看原始报告 JSON</summary>
+          <pre id="report-json"></pre>
+        </details>
+      </div>
+    </section>
+
+    <section class="history-panel" aria-labelledby="history-heading">
+      <div class="section-heading compact">
+        <div>
+          <p class="step">历史</p>
+          <h2 id="history-heading">任务记录</h2>
+        </div>
+        <button id="refresh-button" class="secondary" type="button">刷新</button>
+      </div>
+      <div id="job-list" class="job-list" aria-live="polite"></div>
+    </section>
+  </main>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
