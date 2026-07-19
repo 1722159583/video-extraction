@@ -1,0 +1,119 @@
+{
+  "job_id": "20260719_092919_f29e5814",
+  "asset_name": "628.mp4",
+  "status": "completed",
+  "video": {
+    "duration": 468.0,
+    "fps": 60.0,
+    "total_frames": 28080,
+    "sampled_frames": 1872
+  },
+  "highlights": [
+    {
+      "segment_id": 18,
+      "start_time": 110.0,
+      "end_time": 120.0,
+      "duration": 10.0,
+      "score": 0.5239,
+      "reason": "检测到clock×145、person×15"
+    },
+    {
+      "segment_id": 33,
+      "start_time": 226.0,
+      "end_time": 236.0,
+      "duration": 10.0,
+      "score": 0.5095,
+      "reason": "检测到clock×145、person×18、airplane×2"
+    },
+    {
+      "segment_id": 23,
+      "start_time": 161.25,
+      "end_time": 164.0,
+      "duration": 2.75,
+      "score": 0.4665,
+      "reason": "检测到clock×38、person×1"
+    },
+    {
+      "segment_id": 37,
+      "start_time": 268.0,
+      "end_time": 278.0,
+      "duration": 10.0,
+      "score": 0.4592,
+      "reason": "检测到clock×80、person×21、motorcycle×2"
+    },
+    {
+      "segment_id": 56,
+      "start_time": 443.25,
+      "end_time": 451.0,
+      "duration": 7.75,
+      "score": 0.4531,
+      "reason": "检测到clock×75、person×2、horse×1"
+    }
+  ],
+  "keyframes": [
+    {
+      "id": "segment_18",
+      "segment_id": 18,
+      "timestamp": 115.0,
+      "score": 0.5239,
+      "label": "检测到clock×145、person×15",
+      "note": "",
+      "review": "pending",
+      "image_url": "/outputs/20260719_092919_f29e5814/evidence/evidence_18.jpg"
+    },
+    {
+      "id": "segment_33",
+      "segment_id": 33,
+      "timestamp": 231.0,
+      "score": 0.5095,
+      "label": "检测到clock×145、person×18、airplane×2",
+      "note": "",
+      "review": "pending",
+      "image_url": "/outputs/20260719_092919_f29e5814/evidence/evidence_33.jpg"
+    },
+    {
+      "id": "segment_23",
+      "segment_id": 23,
+      "timestamp": 162.62,
+      "score": 0.4665,
+      "label": "检测到clock×38、person×1",
+      "note": "",
+      "review": "pending",
+      "image_url": "/outputs/20260719_092919_f29e5814/evidence/evidence_23.jpg"
+    },
+    {
+      "id": "segment_37",
+      "segment_id": 37,
+      "timestamp": 273.0,
+      "score": 0.4592,
+      "label": "检测到clock×80、person×21、motorcycle×2",
+      "note": "",
+      "review": "pending",
+      "image_url": null
+    },
+    {
+      "id": "segment_56",
+      "segment_id": 56,
+      "timestamp": 447.12,
+      "score": 0.4531,
+      "label": "检测到clock×75、person×2、horse×1",
+      "note": "",
+      "review": "pending",
+      "image_url": null
+    }
+  ],
+  "model": "yolo11n",
+  "parameters": {
+    "confidence_threshold": 0.35,
+    "sample_interval": 15,
+    "top_n_segments": 5
+  },
+  "processing_time": 227.98,
+  "message": "分析完成，可查看并审核推荐精彩片段。",
+  "rough_cut": {
+    "output_file": "rough_cut_43.mp4",
+    "segment_count": 5,
+    "total_duration": 40.5,
+    "spec": "4:3"
+  }
+}
